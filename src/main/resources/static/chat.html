@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Group Chat (Live)</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+
+<body>
+
+<h2>Group Chat (Live)</h2>
+
+Group ID:
+<input type="number" id="groupId" value="1"><br><br>
+
+User ID:
+<input type="number" id="userId" value="1"><br><br>
+
+Name:
+<input type="text" id="userName" value="User1"><br><br>
+
+Message:
+<input type="text" id="msg" size="40">
+<button onclick="sendMessage()">Send</button>
+
+<ul id="chat"></ul>
+
+<script>
+    let stompClient = null;
+
+    function connectWS() {
+        let socket = new SockJS("http://localhost:8080/ws");
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, () => {
+            stompClient.subscribe("/topic/chat", (data) => {
+                let msg = JSON.parse(data.body);
+
+                let li = document.createElement("li");
+                li.innerHTML = `<b>[Group ${msg.groupId}] ${msg.userName}:</b> ${msg.message}`;
+                document.getElementById("chat").appendChild(li);
+            });
+        });
+    }
+
+    function sendMessage() {
+        let data = {
+            groupId: Number(document.getElementById("groupId").value),
+            userId: Number(document.getElementById("userId").value),
+            userName: document.getElementById("userName").value,
+            message: document.getElementById("msg").value
+        };
+
+        stompClient.send("/app/chat.send", {}, JSON.stringify(data));
+        document.getElementById("msg").value = "";
+    }
+
+    connectWS();
+</script>
+
+</body>
+</html>
