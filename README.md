@@ -1,3 +1,5 @@
+pripravil Kazur Dmytro pre TSIKT
+
 Collaborative Study Platform
 Semestrálny projekt – predmet TSIKT (2024/2025)
 
